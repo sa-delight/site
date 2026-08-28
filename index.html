@@ -719,6 +719,44 @@
     </div>
   </div>
 
+  <!-- COUNTERS -->
+  <section style="padding-bottom:0">
+    <div class="status-grid" style="margin-top:0">
+      <div class="status-card ok fade-in">
+        <div class="sc-header">
+          <div class="sc-name">Days Since Idea</div>
+          <div class="sc-badge ok">Live</div>
+        </div>
+        <div class="sc-value" id="val-days">…</div>
+        <div class="sc-desc">Дней с момента произнесения судьбоносной фразы. Каждый день приближает к успеху.</div>
+      </div>
+      <div class="status-card error fade-in" id="counter-code" style="cursor:pointer" title="нажми 10 раз">
+        <div class="sc-header">
+          <div class="sc-name">Lines of Code</div>
+          <div class="sc-badge error">Critical</div>
+        </div>
+        <div class="sc-value" id="val-loc">0</div>
+        <div class="sc-desc">Строк продуктового кода. HTML заглушки не считается.</div>
+      </div>
+      <div class="status-card warn fade-in">
+        <div class="sc-header">
+          <div class="sc-name">Domain Grief</div>
+          <div class="sc-badge warn">Ongoing</div>
+        </div>
+        <div class="sc-value" id="val-grief">…</div>
+        <div class="sc-desc">Дней скорби по dealdo.ru. Время лечит. Нас — нет.</div>
+      </div>
+      <div class="status-card ok fade-in">
+        <div class="sc-header">
+          <div class="sc-name">Last Deploy</div>
+          <div class="sc-badge ok">Recent</div>
+        </div>
+        <div class="sc-value" id="val-deploy">…</div>
+        <div class="sc-desc">Последний коммит в репозиторий. Непрерывная доставка ценности.</div>
+      </div>
+    </div>
+  </section>
+
   <!-- STATUS -->
   <section id="status">
     <div class="section-label">System Status</div>
@@ -810,6 +848,37 @@
       <div><span class="t-prompt">$</span> <span class="t-cmd">echo $FEELINGS</span></div>
       <div><span class="t-yellow">considerable</span></div>
     </div>
+  </section>
+
+  <!-- PITCH GENERATOR -->
+  <section>
+    <div class="section-label fade-in">Pitch Engine™</div>
+    <h2 class="section-title fade-in">Generate Your Pitch<br/><span style="font-weight:300;color:var(--muted)">Powered by Buzzword AI®</span></h2>
+    <div class="terminal fade-in" style="margin-top:2rem">
+      <div id="pitch-output" style="min-height:2.4rem;font-size:1rem;color:var(--white);line-height:1.6">
+        <span class="t-comment">// нажми кнопку для генерации питча</span>
+      </div>
+    </div>
+    <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap" class="fade-in">
+      <button class="btn-primary" id="btn-pitch" style="font-size:0.82rem;padding:0.7rem 1.6rem">⚡ Generate Pitch</button>
+      <button class="btn-ghost" id="btn-pitch-copy" style="font-size:0.82rem;padding:0.7rem 1.6rem">Copy</button>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section>
+    <div class="section-label fade-in">Early Access</div>
+    <h2 class="section-title fade-in">Join the Waitlist<br/><span style="font-weight:300;color:var(--muted)">Be First. Whatever It Is.</span></h2>
+    <div class="fade-in" style="margin-top:2rem;display:flex;gap:0.8rem;flex-wrap:wrap;max-width:520px">
+      <input id="waitlist-email" type="email" placeholder="your@email.com"
+        style="flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border);
+               color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:0.9rem;
+               padding:0.85rem 1.2rem;border-radius:3px;outline:none;transition:border-color 0.2s"
+        onfocus="this.style.borderColor='rgba(99,102,241,0.6)'"
+        onblur="this.style.borderColor='var(--border)'" />
+      <button class="btn-primary" id="btn-waitlist" style="white-space:nowrap">Request Access</button>
+    </div>
+    <div id="waitlist-response" style="margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent2);display:none"></div>
   </section>
 
   <!-- ROADMAP -->
@@ -920,128 +989,584 @@
 </main>
 
 <script>
-  /* ── MATRIX CANVAS ── */
-  (function () {
-    const canvas = document.getElementById('matrix-canvas');
-    const ctx = canvas.getContext('2d');
-    const WORDS = [
-      'SYNERGY','B2B','SAAS','AI','ML','LLM','ROI','KPI',
-      'PIVOT','SCALE','DISRUPT','ITERATE','AGILE','SCRUM',
-      'DEPLOY','INFRA','STACK','API','SDK','MVP','PMF',
-      'ARR','MRR','CAC','LTV','NPS','DAU','MAU','EBITDA',
-    ];
+/* ════════════════════════════════════════════════
+   MATRIX CANVAS
+════════════════════════════════════════════════ */
+const matrixState = { speed: 0.35, color: '#6366f1', turbo: false };
 
-    let cols, drops, fontSize = 13;
-
-    function init() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-      cols  = Math.floor(canvas.width / (fontSize * 5));
-      drops = Array.from({ length: cols }, () => Math.random() * -50);
-    }
-
-    function draw() {
-      ctx.fillStyle = 'rgba(10,10,15,0.18)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#6366f1';
-      ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
-
-      drops.forEach((y, i) => {
-        const word = WORDS[Math.floor(Math.random() * WORDS.length)];
-        const x = i * fontSize * 5;
-        ctx.globalAlpha = 0.4 + Math.random() * 0.6;
-        ctx.fillText(word, x, y * fontSize);
-        if (y * fontSize > canvas.height && Math.random() > 0.97) drops[i] = 0;
-        drops[i] += 0.35;
-      });
-
-      ctx.globalAlpha = 1;
-    }
-
-    init();
-    window.addEventListener('resize', init);
-    setInterval(draw, 80);
-  })();
-
-  /* ── TICKER ── */
-  (function () {
-    const items = [
-      'AI · B2B · SAAS · STARTUP',
-      'DOMAIN ACQUIRED: sa-delight.ru',
-      'DOMAIN LOST: dealdo.ru',
-      'SERIES A: PENDING',
-      'PIVOT COUNT: 0',
-      'LINES OF CODE: IMMINENT',
-      'INVESTORS: WELCOME',
-      'PRODUCT: TBD™',
-      'DISRUPTION LEVEL: THEORETICAL',
-      'FOUNDER MORALE: 97.3%',
-    ];
-
-    const track = document.getElementById('ticker');
-    const doubled = [...items, ...items];
-    doubled.forEach(t => {
-      const el = document.createElement('span');
-      el.className = 'ticker-item';
-      el.innerHTML = t + '<span class="dot">◆</span>';
-      track.appendChild(el);
-    });
-  })();
-
-  /* ── SCROLL FADE ── */
-  (function () {
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
-  })();
-
-  /* ── RIPPLE BUTTON ── */
-  document.getElementById('btn-invest').addEventListener('click', function (e) {
-    e.preventDefault();
-    const btn = this;
-    const circle = document.createElement('span');
-    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-    const rect = btn.getBoundingClientRect();
-    circle.className = 'ripple';
-    circle.style.cssText = `
-      width: ${diameter}px; height: ${diameter}px;
-      left: ${e.clientX - rect.left - diameter / 2}px;
-      top:  ${e.clientY - rect.top  - diameter / 2}px;
-    `;
-    btn.querySelector('.ripple')?.remove();
-    btn.appendChild(circle);
-
-    // Тост вместо навигации
-    showToast('💸 Investor deck не готов. Напишите @zeonoff напрямую.');
-  });
-
-  function showToast(msg) {
-    let t = document.getElementById('toast');
-    if (!t) {
-      t = document.createElement('div');
-      t.id = 'toast';
-      t.style.cssText = `
-        position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(60px);
-        background:#18182a; border:1px solid rgba(99,102,241,0.4); color:#e8e8f0;
-        font-family:'Space Grotesk',sans-serif; font-size:0.85rem;
-        padding:0.8rem 1.4rem; border-radius:4px;
-        box-shadow:0 8px 32px rgba(0,0,0,0.5);
-        z-index:999; transition:transform 0.3s ease, opacity 0.3s ease; opacity:0;
-      `;
-      document.body.appendChild(t);
-    }
-    t.textContent = msg;
-    requestAnimationFrame(() => {
-      t.style.transform = 'translateX(-50%) translateY(0)';
-      t.style.opacity   = '1';
-    });
-    setTimeout(() => {
-      t.style.transform = 'translateX(-50%) translateY(60px)';
-      t.style.opacity   = '0';
-    }, 3500);
+(function () {
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+  const WORDS = [
+    'SYNERGY','B2B','SAAS','AI','ML','LLM','ROI','KPI',
+    'PIVOT','SCALE','DISRUPT','ITERATE','AGILE','SCRUM',
+    'DEPLOY','INFRA','STACK','API','SDK','MVP','PMF',
+    'ARR','MRR','CAC','LTV','NPS','DAU','MAU','EBITDA',
+    'UNICORN','RUNWAY','BURN','CHURN','UPSELL','CROSS-SELL',
+    'ENTERPRISE','FREEMIUM','SERIES-A','DUE-DILIGENCE',
+    'BLOCKCHAIN','CLOUD','DEVOPS','MICROSERVICE','KUBERNETES',
+    'VECTOR-DB','RAG','FINE-TUNE','PROMPT','EMBEDDING',
+    'DEALDO','GRIEF','WHY','OCCUPIED','PAIN','DOMAIN',
+  ];
+  let cols, drops, fontSize = 13;
+  function init() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols  = Math.floor(canvas.width / (fontSize * 5));
+    drops = Array.from({ length: cols }, () => Math.random() * -50);
   }
+  function draw() {
+    ctx.fillStyle = 'rgba(10,10,15,0.18)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = matrixState.color;
+    ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+    drops.forEach((y, i) => {
+      const word = WORDS[Math.floor(Math.random() * WORDS.length)];
+      ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+      ctx.fillText(word, i * fontSize * 5, y * fontSize);
+      if (y * fontSize > canvas.height && Math.random() > 0.97) drops[i] = 0;
+      drops[i] += matrixState.speed;
+    });
+    ctx.globalAlpha = 1;
+  }
+  init();
+  window.addEventListener('resize', init);
+  setInterval(draw, 80);
+})();
+
+/* ════════════════════════════════════════════════
+   TICKER
+════════════════════════════════════════════════ */
+(function () {
+  const items = [
+    'AI · B2B · SAAS · STARTUP',
+    'DOMAIN ACQUIRED: sa-delight.ru',
+    'DOMAIN LOST: dealdo.ru · RIP',
+    'SERIES A: PENDING',
+    'PIVOT COUNT: 0',
+    'LINES OF CODE: 0',
+    'INVESTORS: WELCOME',
+    'PRODUCT: TBD™',
+    'DISRUPTION LEVEL: THEORETICAL',
+    'FOUNDER MORALE: 97.3%',
+    'GRIEF INDEX: MAXIMAL',
+    'TIME TO MARKET: UNDEFINED',
+    'TAM: HUGE · SAM: ALSO HUGE · SOM: TBD',
+  ];
+  const track = document.getElementById('ticker');
+  [...items, ...items].forEach(t => {
+    const el = document.createElement('span');
+    el.className = 'ticker-item';
+    el.innerHTML = t + '<span class="dot">◆</span>';
+    track.appendChild(el);
+  });
+})();
+
+/* ════════════════════════════════════════════════
+   SCROLL FADE
+════════════════════════════════════════════════ */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+})();
+
+/* ════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+function showToast(msg, duration = 3500) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = `
+      position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);
+      background:#18182a;border:1px solid rgba(99,102,241,0.45);color:#e8e8f0;
+      font-family:'Space Grotesk',sans-serif;font-size:0.85rem;
+      padding:0.85rem 1.5rem;border-radius:4px;max-width:90vw;text-align:center;
+      box-shadow:0 8px 32px rgba(0,0,0,0.6);z-index:9999;
+      transition:transform 0.3s ease,opacity 0.3s ease;opacity:0;`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  requestAnimationFrame(() => { t.style.transform='translateX(-50%) translateY(0)'; t.style.opacity='1'; });
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.transform='translateX(-50%) translateY(80px)'; t.style.opacity='0'; }, duration);
+}
+
+/* ════════════════════════════════════════════════
+   8-BIT SOUND via Web Audio API
+════════════════════════════════════════════════ */
+function playJingle(type = 'success') {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const sequences = {
+      success: [[523,0.1],[659,0.1],[784,0.1],[1047,0.2]],
+      sad:     [[440,0.15],[415,0.15],[392,0.15],[349,0.3]],
+      konami:  [[784,0.08],[784,0.08],[880,0.08],[784,0.08],[698,0.08],[784,0.25]],
+      error:   [[200,0.1],[180,0.1],[160,0.25]],
+      reveal:  [[262,0.08],[330,0.08],[392,0.08],[523,0.08],[659,0.08],[784,0.15]],
+    };
+    let t = ctx.currentTime;
+    (sequences[type] || sequences.success).forEach(([freq, dur]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'square';
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.08, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.start(t); o.stop(t + dur);
+      t += dur;
+    });
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════
+   COUNTERS via GitHub API
+════════════════════════════════════════════════ */
+(function () {
+  // Дата идеи — Q4 2025
+  const ideaDate = new Date('2025-10-15T12:00:00Z');
+  const griefDate = new Date('2026-05-01T00:00:00Z'); // когда обнаружили dealdo.ru
+  const now = new Date();
+
+  const daysSince = d => Math.floor((now - d) / 86400000);
+  document.getElementById('val-days').textContent = daysSince(ideaDate);
+  document.getElementById('val-grief').textContent = daysSince(griefDate);
+
+  // GitHub API — последний коммит
+  fetch('https://api.github.com/repos/sa-delight/site/commits?per_page=1')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data[0] && data[0].commit) {
+        const d = new Date(data[0].commit.committer.date);
+        const diffH = Math.floor((now - d) / 3600000);
+        document.getElementById('val-deploy').textContent =
+          diffH < 24 ? `${diffH}h ago` :
+          diffH < 48 ? 'yesterday' :
+          `${Math.floor(diffH/24)}d ago`;
+      } else {
+        document.getElementById('val-deploy').textContent = 'recent';
+      }
+    })
+    .catch(() => { document.getElementById('val-deploy').textContent = 'recent'; });
+})();
+
+/* Lines of code easter egg — 10 clicks */
+let locClicks = 0;
+document.getElementById('counter-code').addEventListener('click', () => {
+  locClicks++;
+  const el = document.getElementById('val-loc');
+  if (locClicks < 10) {
+    el.textContent = locClicks % 2 === 0 ? '0' : '1';
+    showToast(`Попытка ${locClicks}/10. Продолжай.`);
+  } else {
+    locClicks = 0;
+    el.textContent = '42';
+    playJingle('konami');
+    typeTerminal([
+      '$ git log --oneline | wc -l',
+      '42',
+      '$ git log --oneline | head -1',
+      'a1b2c3d  initial commit: add index.html',
+      '$ git log --oneline | tail -1',
+      'a1b2c3d  initial commit: add index.html',
+      '# один коммит. 42 строки. архитектура готова.',
+    ]);
+    setTimeout(() => { el.textContent = '0'; }, 5000);
+  }
+});
+
+/* ════════════════════════════════════════════════
+   PITCH GENERATOR
+════════════════════════════════════════════════ */
+const PITCH = {
+  adj:    ['Disruptive','Hyper-scalable','Agentic','Composable','Frictionless','Autonomous',
+           'Intelligent','Next-generation','Transformative','Bleeding-edge','Omnichannel',
+           'Decentralized','Serverless','Zero-trust','Quantum-ready','Mission-critical'],
+  tech:   ['AI-native','LLM-powered','ML-driven','Data-centric','Cloud-agnostic',
+           'API-first','Vector-based','RAG-enhanced','GPT-augmented','Blockchain-secured',
+           'Edge-computed','Self-healing','Neuromorphic','Copilot-enabled'],
+  noun:   ['platform','solution','infrastructure','engine','ecosystem','framework',
+           'marketplace','orchestrator','operating system','intelligence layer','suite'],
+  action: ['delivering','enabling','unlocking','accelerating','orchestrating',
+           'transforming','optimizing','democratizing','operationalizing','synthesizing'],
+  value:  ['enterprise synergies','measurable ROI','stakeholder value','operational excellence',
+           'compound growth','market leadership','exponential scale','10x outcomes',
+           'paradigm shifts','sustainable disruption','competitive moats'],
+  suffix: ['at scale','across verticals','in real-time','for modern teams',
+           'with zero latency','via proprietary AI','through network effects',
+           'leveraging first-party data','without technical debt'],
+};
+
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generatePitch() {
+  return `${rnd(PITCH.adj)} ${rnd(PITCH.tech)} ${rnd(PITCH.noun)} ${rnd(PITCH.action)} ${rnd(PITCH.value)} ${rnd(PITCH.suffix)}.`;
+}
+
+let lastPitch = '';
+document.getElementById('btn-pitch').addEventListener('click', function(e) {
+  addRipple(this, e);
+  lastPitch = generatePitch();
+  const out = document.getElementById('pitch-output');
+  out.style.opacity = '0';
+  setTimeout(() => {
+    out.innerHTML = `<span class="t-green">></span> <span style="color:var(--white)">${lastPitch}</span>`;
+    out.style.opacity = '1';
+    out.style.transition = 'opacity 0.3s';
+  }, 150);
+});
+
+document.getElementById('btn-pitch-copy').addEventListener('click', function() {
+  if (!lastPitch) { showToast('Сначала сгенерируй питч.'); return; }
+  navigator.clipboard.writeText(lastPitch).then(() => {
+    showToast('✓ Скопировано. Удачи на встрече с инвесторами.');
+  });
+});
+
+/* ════════════════════════════════════════════════
+   WAITLIST
+════════════════════════════════════════════════ */
+const WAITLIST_RESPONSES = [
+  'Your application is being processed by our proprietary AI pipeline. ETA: undefined.',
+  'Access request queued. Position in waitlist: NaN. Expected onboarding: Q∞ 2027.',
+  'Application received. Our ML model scored your email 94.7/100 on enterprise potential.',
+  'You are #1 on the waitlist. Also everyone else is #1. We use blockchain-based priority.',
+  'Request forwarded to our Head of Waitlist Operations (currently: vacant). Stay tuned.',
+  'Your email has been vectorized and stored in our proprietary RAG database. Namaste.',
+  'Access granted pending completion of our 47-step enterprise onboarding. Step 1: wait.',
+  'Synergy detected. Our AI is composing a personalized onboarding experience. ETA: TBD.',
+];
+
+document.getElementById('btn-waitlist').addEventListener('click', function(e) {
+  const email = document.getElementById('waitlist-email').value.trim();
+  if (!email || !email.includes('@')) { showToast('Введи валидный email, пожалуйста.'); return; }
+  addRipple(this, e);
+  const resp = document.getElementById('waitlist-response');
+  resp.style.display = 'block';
+  resp.textContent = '';
+  playJingle('success');
+  const msg = '> ' + WAITLIST_RESPONSES[Math.floor(Math.random() * WAITLIST_RESPONSES.length)];
+  let i = 0;
+  const iv = setInterval(() => {
+    resp.textContent += msg[i++];
+    if (i >= msg.length) clearInterval(iv);
+  }, 22);
+  document.getElementById('waitlist-email').value = '';
+});
+
+/* ════════════════════════════════════════════════
+   INVEST EARLY BUTTON — long hold easter egg
+════════════════════════════════════════════════ */
+let holdTimer;
+const btnInvest = document.getElementById('btn-invest');
+
+btnInvest.addEventListener('mousedown', () => {
+  holdTimer = setTimeout(() => { easterEgg('series-b'); }, 2000);
+});
+btnInvest.addEventListener('mouseup',   () => clearTimeout(holdTimer));
+btnInvest.addEventListener('mouseleave',() => clearTimeout(holdTimer));
+btnInvest.addEventListener('touchstart',() => { holdTimer = setTimeout(() => easterEgg('series-b'), 2000); });
+btnInvest.addEventListener('touchend',  () => clearTimeout(holdTimer));
+
+btnInvest.addEventListener('click', function(e) {
+  e.preventDefault();
+  addRipple(this, e);
+  showToast('💸 Investor deck не готов. Напишите @zeonoff напрямую.');
+});
+
+/* ════════════════════════════════════════════════
+   RIPPLE HELPER
+════════════════════════════════════════════════ */
+function addRipple(btn, e) {
+  const circle = document.createElement('span');
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  const rect = btn.getBoundingClientRect();
+  circle.className = 'ripple';
+  circle.style.cssText = `width:${d}px;height:${d}px;
+    left:${(e.clientX||rect.left+rect.width/2)-rect.left-d/2}px;
+    top:${(e.clientY||rect.top+rect.height/2)-rect.top-d/2}px`;
+  btn.querySelector('.ripple')?.remove();
+  btn.appendChild(circle);
+}
+
+/* ════════════════════════════════════════════════
+   TERMINAL OVERLAY
+════════════════════════════════════════════════ */
+function typeTerminal(lines) {
+  let overlay = document.getElementById('terminal-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'terminal-overlay';
+    overlay.style.cssText = `
+      position:fixed;bottom:0;left:0;right:0;z-index:8888;
+      background:#0a0a0f;border-top:1px solid rgba(99,102,241,0.4);
+      font-family:'JetBrains Mono',monospace;font-size:0.8rem;
+      padding:1.2rem 1.8rem 1.4rem;line-height:1.9;
+      box-shadow:0 -8px 40px rgba(0,0,0,0.7);
+      transform:translateY(100%);transition:transform 0.4s ease;`;
+    const close = document.createElement('div');
+    close.style.cssText = 'position:absolute;top:0.7rem;right:1.2rem;color:#5a5a72;cursor:pointer;font-size:0.7rem;letter-spacing:0.1em';
+    close.textContent = '[ ESC / click to close ]';
+    close.onclick = closeTerminal;
+    overlay.appendChild(close);
+    const content = document.createElement('div');
+    content.id = 'terminal-content';
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+  }
+  const content = document.getElementById('terminal-content');
+  content.innerHTML = '';
+  requestAnimationFrame(() => { overlay.style.transform = 'translateY(0)'; });
+
+  let lineIdx = 0;
+  function nextLine() {
+    if (lineIdx >= lines.length) return;
+    const line = lines[lineIdx++];
+    const div = document.createElement('div');
+    const isCmd = line.startsWith('$');
+    const isComment = line.startsWith('#');
+    div.style.color = isCmd ? '#818cf8' : isComment ? '#5a5a72' : '#e8e8f0';
+    content.appendChild(div);
+    let ci = 0;
+    const iv = setInterval(() => {
+      div.textContent += line[ci++];
+      if (ci >= line.length) { clearInterval(iv); setTimeout(nextLine, isCmd ? 180 : 80); }
+    }, isCmd ? 35 : 12);
+  }
+  nextLine();
+}
+
+function closeTerminal() {
+  const o = document.getElementById('terminal-overlay');
+  if (o) { o.style.transform = 'translateY(100%)'; }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTerminal(); });
+
+/* ════════════════════════════════════════════════
+   BUZZWORD FLASH
+════════════════════════════════════════════════ */
+function buzzwordFlash() {
+  const BUZZ = ['SYNERGY','DISRUPT','SCALE','PIVOT','AGILE','LEVERAGE',
+                'BLOCKCHAIN','AI','UNICORN','10X','GROWTH','IDEATE'];
+  const allText = document.querySelectorAll('p, h1, h2, .sc-desc, .founder-bio, .rm-text');
+  const originals = [...allText].map(el => el.innerHTML);
+  allText.forEach(el => {
+    let t = el.textContent;
+    for (let i = 0; i < 3; i++) {
+      const words = t.split(' ');
+      const idx = Math.floor(Math.random() * words.length);
+      words[idx] = `<span style="color:var(--accent2)">${BUZZ[Math.floor(Math.random()*BUZZ.length)]}</span>`;
+      t = words.join(' ');
+    }
+    el.innerHTML = t;
+  });
+  matrixState.speed = 3; matrixState.color = '#818cf8';
+  setTimeout(() => {
+    allText.forEach((el, i) => { el.innerHTML = originals[i]; });
+    matrixState.speed = 0.35; matrixState.color = '#6366f1';
+  }, 1800);
+}
+
+/* ════════════════════════════════════════════════
+   SECRET PITCH DECK MODAL
+════════════════════════════════════════════════ */
+function showPitchDeck() {
+  let modal = document.getElementById('deck-modal');
+  if (modal) { modal.style.display = 'flex'; return; }
+  modal = document.createElement('div');
+  modal.id = 'deck-modal';
+  modal.style.cssText = `
+    position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(8px);`;
+  modal.innerHTML = `
+    <div style="background:#11111a;border:1px solid rgba(99,102,241,0.4);border-radius:6px;
+                max-width:560px;width:90%;padding:2.5rem;position:relative">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#818cf8;
+                  letter-spacing:0.2em;text-transform:uppercase;margin-bottom:1.2rem">
+        ⬛ CONFIDENTIAL · SERIES B TERM SHEET
+      </div>
+      <h2 style="font-size:1.6rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.5rem">
+        Sa Delight<br/><span style="color:#818cf8">AI B2B SaaS Platform</span>
+      </h2>
+      <div style="color:#5a5a72;font-size:0.82rem;margin-bottom:1.8rem">
+        Series B · Pre-Product · Pre-Revenue · Pre-Idea (refined)
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.8rem">
+        ${[
+          ['Valuation','$420,000,000'],
+          ['Round Size','$69,000,000'],
+          ['Lead Investor','TBD (you?)'],
+          ['Product','Coming Soon™'],
+          ['Revenue','$0 (stealth)'],
+          ['Team','2 visionaries'],
+          ['TAM','Massive'],
+          ['dealdo.ru','Still occupied'],
+        ].map(([k,v]) => `
+          <div style="background:#18182a;border:1px solid rgba(99,102,241,0.15);
+                      border-radius:3px;padding:0.8rem 1rem">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+                        color:#5a5a72;text-transform:uppercase;letter-spacing:0.12em;
+                        margin-bottom:0.3rem">${k}</div>
+            <div style="font-size:0.95rem;font-weight:600">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:0.72rem;color:#3a3a52;font-style:italic;margin-bottom:1.4rem">
+        * Данный term sheet является юмористическим артефактом. Любое совпадение
+        с реальными финансовыми инструментами случайно и, вероятно, удивительно.
+      </div>
+      <button onclick="document.getElementById('deck-modal').style.display='none'"
+        style="background:var(--accent);color:#fff;border:none;padding:0.7rem 1.6rem;
+               font-family:'Space Grotesk',sans-serif;font-size:0.85rem;font-weight:600;
+               border-radius:3px;cursor:pointer;letter-spacing:0.04em">
+        Close · Pass on this round
+      </button>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display='none'; });
+  document.body.appendChild(modal);
+}
+
+/* ════════════════════════════════════════════════
+   EASTER EGGS
+════════════════════════════════════════════════ */
+function easterEgg(type) {
+  switch(type) {
+
+    case 'konami':
+      playJingle('konami');
+      buzzwordFlash();
+      setTimeout(() => typeTerminal([
+        '$ sudo make startup --force',
+        'Checking prerequisites...',
+        '  [OK] Vision: present',
+        '  [OK] Buzzwords: abundant',
+        '  [WARN] Product: not found',
+        '  [WARN] Revenue: null',
+        '  [ERR] dealdo.ru: occupied by enemy',
+        'Build failed. Retrying with --ignore-reality flag...',
+        'SUCCESS. Startup is now running in your imagination.',
+        '# unicorn status: theoretical · valuation: pending · ship it.',
+      ]), 600);
+      showToast('🎮 CHEAT CODE ACTIVATED · God Mode: On');
+      break;
+
+    case 'logo':
+      playJingle('reveal');
+      typeTerminal([
+        '$ whois sa-delight.ru',
+        'registrant: SA DELIGHT LLC (THEORETICAL)',
+        'created:    2026-01-01',
+        'status:     ACTIVE · LEGENDARY · DISRUPTING',
+        '$ curl -s https://api.openai.com/v1/models | grep gpt',
+        'Error: 401 Unauthorized',
+        '$ curl -s https://api.anthropic.com/v1/models',
+        'Error: 401 Unauthorized',
+        '# ничего. мы строим своё. proprietary. secret. TBD.',
+      ]);
+      break;
+
+    case 'rip-badge':
+      playJingle('sad');
+      typeTerminal([
+        '$ ping dealdo.ru',
+        'PING dealdo.ru: 64 bytes from NOT-US: icmp_seq=0 ttl=64 time=0.1ms',
+        'PING dealdo.ru: 64 bytes from NOT-US: icmp_seq=1 ttl=64 time=0.1ms',
+        '# он там. живой. работает. просто не наш.',
+        '$ dig dealdo.ru +short',
+        '185.x.x.x  # чужой IP. чужое счастье.',
+        '$ echo "это могло быть наше" >> /dev/null',
+        '# /dev/null принял. как и мы. почти.',
+        '$ rm -rf grief/ --no-preserve-root',
+        'Operation not permitted. Grief is read-only.',
+      ]);
+      break;
+
+    case 'series-b':
+      playJingle('reveal');
+      showPitchDeck();
+      showToast('🤫 Нашёл секретный term sheet');
+      break;
+
+    case 'avatar-zeonoff':
+      playJingle('success');
+      typeTerminal([
+        '$ ssh zeonoff@sa-delight.ru',
+        'Welcome, Visionary.',
+        'Last login: just now (ideating)',
+        '$ cat /var/log/startup/ideas.log',
+        '[10:23] надо делать ai b2b saas startup',
+        '[10:24] а как называть?',
+        '[10:25] sa delight звучит',
+        '[10:26] домен проверить',
+        '[10:27] dealdo.ru занят',
+        '[10:27] ...',
+        '[10:28] ...',
+        '[10:31] sa-delight.ru свободен окей берём',
+        '$ exit',
+        'Logout. Vision persists in RAM.',
+      ]);
+      break;
+
+    case 'avatar-vufer':
+      playJingle('success');
+      typeTerminal([
+        '$ ssh vufer@sa-delight.ru',
+        'Welcome, Principal Engineer.',
+        '$ git log --all --oneline',
+        'a1b2c3d (HEAD -> main) feat: add everything',
+        '$ git show HEAD --stat',
+        ' index.html | 847 +++++++++++++++++++++++++++',
+        ' 1 file changed, 847 insertions(+)',
+        '$ cat /proc/uptime',
+        '420.69 1337.0',
+        '$ ls /home/vufer/projects/',
+        'proxmox/  telegram-bots/  mesh-tracker/  sa-delight/  ...',
+        '# да. он реально всё это сделал.',
+        '$ exit',
+        'Session closed. Infrastructure running fine.',
+      ]);
+      break;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   EASTER EGG TRIGGERS
+════════════════════════════════════════════════ */
+
+// Konami code
+let konamiSeq = [];
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+document.addEventListener('keydown', e => {
+  konamiSeq.push(e.key);
+  konamiSeq = konamiSeq.slice(-10);
+  if (konamiSeq.join(',') === KONAMI.join(',')) easterEgg('konami');
+});
+
+// Клик на логотип
+document.querySelector('.nav-logo').style.cursor = 'pointer';
+document.querySelector('.nav-logo').addEventListener('click', () => easterEgg('logo'));
+
+// Клик на RIP бейдж у dealdo.ru
+document.querySelectorAll('.sc-badge.error').forEach(el => {
+  if (el.textContent.trim() === 'RIP') {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', e => { e.stopPropagation(); easterEgg('rip-badge'); });
+  }
+});
+
+// Долгий hold на Invest Early — уже выше через holdTimer
+
+// Двойной клик на аватар @zeonoff
+document.querySelectorAll('.founder-avatar').forEach(av => {
+  av.style.cursor = 'pointer';
+  av.addEventListener('dblclick', () => {
+    easterEgg(av.textContent.trim() === 'ZN' ? 'avatar-zeonoff' : 'avatar-vufer');
+  });
+});
 </script>
 
 </body>
